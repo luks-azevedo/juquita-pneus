@@ -1,0 +1,50 @@
+---
+/**
+ * Depoimentos. Use SOMENTE depoimentos reais e autorizados.
+ * Com `illustrative`, a seção exibe um aviso de que o conteúdo é de exemplo.
+ * Sem itens, a seção não é renderizada.
+ */
+import Quote from '@lucide/astro/icons/quote';
+import Section, { type SectionTone } from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Badge from '../ui/Badge.astro';
+import type { TestimonialItem } from '../../types/content';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  eyebrow?: string;
+  title: string;
+  items: TestimonialItem[];
+  illustrative?: boolean;
+}
+
+const { id = 'depoimentos', tone = 'default', eyebrow, title, items, illustrative = false } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+{
+  items.length > 0 && (
+    <Section id={id} tone={tone} labelledby={headingId}>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <SectionHeading id={headingId} eyebrow={eyebrow} title={title} inverted={tone === 'inverted'} />
+        {illustrative && <Badge tone="notice">Conteúdo ilustrativo — não são depoimentos reais</Badge>}
+      </div>
+
+      <ul class="mt-12 grid gap-5 md:grid-cols-2 lg:mt-16" role="list">
+        {items.map((t) => (
+          <li class="flex flex-col rounded-card border border-line bg-surface p-7 sm:p-9">
+            <Quote size={28} stroke-width={1.5} class="text-accent" aria-hidden="true" />
+            <blockquote class="mt-5 flex-1 font-heading text-xl leading-snug text-ink sm:text-[1.375rem]">
+              <p>{t.quote}</p>
+            </blockquote>
+            <p class="mt-8 text-sm">
+              <span class="font-medium text-ink">{t.name}</span>
+              {t.role && <span class="block text-muted">{t.role}</span>}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )
+}

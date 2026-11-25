@@ -1,0 +1,107 @@
+---
+/** Apresentação da empresa: texto, imagem opcional e pontos-chave. */
+import { Image } from 'astro:assets';
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import Section, { type SectionTone } from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Button from '../ui/Button.astro';
+import Badge from '../ui/Badge.astro';
+import type { ContentImage, CTA, FeatureItem } from '../../types/content';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  eyebrow?: string;
+  title: string;
+  paragraphs: string[];
+  image?: ContentImage;
+  imageIllustrative?: boolean;
+  imagePosition?: 'left' | 'right';
+  /** Pontos-chave sem números inventados (ex.: "Atendimento: presencial e online"). */
+  highlights?: Pick<FeatureItem, 'title' | 'description'>[];
+  cta?: CTA;
+}
+
+const {
+  id = 'sobre',
+  tone = 'default',
+  eyebrow,
+  title,
+  paragraphs,
+  image,
+  imageIllustrative = false,
+  imagePosition = 'left',
+  highlights = [],
+  cta,
+} = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId}>
+  <div class:list={['grid gap-12 lg:gap-16', image ? 'items-center lg:grid-cols-2' : 'lg:grid-cols-12']}>
+    {
+      image && (
+        <figure class:list={['relative', imagePosition === 'right' && 'lg:order-2']}>
+          <Image
+            src={image.src}
+            alt={image.alt}
+            widths={[480, 800, 1100]}
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            class="aspect-[4/3] w-full rounded-card object-cover"
+          />
+          {imageIllustrative && <Badge class="absolute top-4 left-4">Imagem ilustrativa</Badge>}
+        </figure>
+      )
+    }
+
+    <div class:list={[!image && 'lg:col-span-5']}>
+      <SectionHeading id={headingId} eyebrow={eyebrow} title={title} inverted={tone === 'inverted'} />
+      {
+        image && (
+          <div class="prose-content text-lead mt-6 text-muted">
+            {paragraphs.map((p) => <p>{p}</p>)}
+          </div>
+        )
+      }
+      {
+        image && cta && (
+          <div class="mt-8">
+            <Button href={cta.href} variant="secondary" icon={ArrowRight}>
+              {cta.label}
+            </Button>
+          </div>
+        )
+      }
+    </div>
+
+    {
+      !image && (
+        <div class="lg:col-span-6 lg:col-start-7">
+          <div class="prose-content text-lead text-muted">
+            {paragraphs.map((p) => <p>{p}</p>)}
+          </div>
+          {cta && (
+            <div class="mt-8">
+              <Button href={cta.href} variant="secondary" icon={ArrowRight}>
+                {cta.label}
+              </Button>
+            </div>
+          )}
+        </div>
+      )
+    }
+  </div>
+
+  {
+    highlights.length > 0 && (
+      <dl class="mt-14 grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2 lg:mt-20 lg:grid-cols-4">
+        {highlights.map((h) => (
+          <div class="bg-surface p-6">
+            <dt class="text-sm text-muted">{h.title}</dt>
+            <dd class="mt-1 font-heading text-lg text-ink">{h.description}</dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+</Section>

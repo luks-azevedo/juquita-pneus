@@ -1,0 +1,83 @@
+---
+/**
+ * Página inicial — demonstra várias combinações de seções.
+ * Remova, reordene ou troque variantes/tons conforme o projeto.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import ServicesSection from '../components/sections/ServicesSection.astro';
+import AboutSection from '../components/sections/AboutSection.astro';
+import BenefitsSection from '../components/sections/BenefitsSection.astro';
+import PortfolioSection from '../components/sections/PortfolioSection.astro';
+import TestimonialsSection from '../components/sections/TestimonialsSection.astro';
+import FAQSection from '../components/sections/FAQSection.astro';
+import CTASection from '../components/sections/CTASection.astro';
+import { images, services, benefits, process, portfolio, testimonials, faq } from '../data/demo';
+
+const servicesWithLinks = services.map((s) => ({ ...s, href: `/servicos#${s.id}` }));
+---
+
+<BaseLayout>
+  <Hero
+    variant="split"
+    eyebrow="Consultoria em gestão e finanças"
+    title="Decisões mais claras para pequenas empresas."
+    description="Organizamos números, rotinas e prioridades para que a gestão acompanhe o negócio com segurança."
+    primaryCta={{ label: 'Agendar uma conversa', href: '/contato' }}
+    secondaryCta={{ label: 'Conhecer os serviços', href: '/servicos' }}
+    image={images.hero}
+    imageIllustrative
+    highlights={['Atendimento presencial e online', 'Proposta personalizada']}
+  />
+
+  <ServicesSection
+    tone="surface"
+    eyebrow="Serviços"
+    title="Como podemos ajudar"
+    description="Trabalhos com escopo definido, pensados para a realidade de empresas menores."
+    items={servicesWithLinks}
+    limit={3}
+    cta={{ label: 'Ver todos os serviços', href: '/servicos' }}
+  />
+
+  <AboutSection
+    eyebrow="Sobre"
+    title="Gestão sem complicação."
+    paragraphs={[
+      'A Viana Consultoria acompanha empresas que cresceram rápido e precisam organizar a casa antes do próximo passo.',
+      'O trabalho é feito junto com a equipe, com linguagem simples e foco no que pode ser aplicado no dia a dia.',
+    ]}
+    image={images.about}
+    imageIllustrative
+    cta={{ label: 'Conhecer a consultoria', href: '/sobre' }}
+  />
+
+  <BenefitsSection tone="muted" eyebrow="Diferenciais" title="O que orienta o nosso trabalho" items={benefits} />
+
+  <BenefitsSection
+    id="como-funciona"
+    eyebrow="Como funciona"
+    title="Do primeiro contato ao acompanhamento"
+    items={process}
+    variant="numbered"
+  />
+
+  <PortfolioSection
+    tone="surface"
+    eyebrow="Projetos"
+    title="Tipos de trabalho que realizamos"
+    items={portfolio}
+    illustrative
+  />
+
+  <TestimonialsSection eyebrow="Depoimentos" title="O que dizem os clientes" items={testimonials} illustrative />
+
+  <FAQSection tone="muted" eyebrow="Dúvidas" title="Perguntas frequentes" items={faq} />
+
+  <CTASection
+    title="Vamos conversar sobre a sua empresa?"
+    description="Uma primeira conversa, sem compromisso, para entender o momento do negócio."
+    primaryCta={{ label: 'Agendar conversa', href: '/contato' }}
+    secondaryCta={{ label: 'Ver serviços', href: '/servicos' }}
+  />
+</BaseLayout>

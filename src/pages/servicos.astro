@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import ServicesSection from '../components/sections/ServicesSection.astro';
+import BenefitsSection from '../components/sections/BenefitsSection.astro';
+import FAQSection from '../components/sections/FAQSection.astro';
+import CTASection from '../components/sections/CTASection.astro';
+import { services, process, faq } from '../data/demo';
+---
+
+<BaseLayout
+  title="Serviços"
+  description="Diagnóstico empresarial, planejamento financeiro, gestão de processos, indicadores e mentoria para gestores."
+>
+  <Hero
+    variant="page"
+    eyebrow="Serviços"
+    title="Serviços com escopo claro e entregas definidas."
+    description="Cada serviço pode ser contratado separadamente ou combinado em um projeto sob medida."
+  />
+
+  <ServicesSection
+    id="lista-servicos"
+    title="O que fazemos"
+    items={services}
+    variant="list"
+  />
+
+  <BenefitsSection
+    id="como-funciona"
+    tone="muted"
+    eyebrow="Como funciona"
+    title="Etapas de um projeto"
+    items={process}
+    variant="numbered"
+  />
+
+  <FAQSection eyebrow="Dúvidas" title="Sobre os serviços" items={faq.slice(1)} />
+
+  <CTASection
+    title="Não sabe por onde começar?"
+    description="O diagnóstico é um bom primeiro passo para definir prioridades."
+    primaryCta={{ label: 'Solicitar proposta', href: '/contato' }}
+  />
+</BaseLayout>

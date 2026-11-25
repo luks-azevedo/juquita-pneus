@@ -1,0 +1,302 @@
+---
+/**
+ * Formulário de contato com validação no navegador.
+ * O destino do envio vem de src/config/forms.ts (Formspree, Web3Forms ou endpoint próprio).
+ * Sem serviço conectado, oferece enviar o conteúdo por WhatsApp/e-mail — nada é simulado.
+ */
+import Send from '@lucide/astro/icons/send';
+import Button from '../ui/Button.astro';
+import { formConfig } from '../../config/forms';
+import { site } from '../../config/site';
+
+interface Props {
+  title?: string;
+  class?: string;
+}
+const { title, class: className } = Astro.props;
+
+const fields = [
+  { name: 'name', label: 'Nome', type: 'text', autocomplete: 'name', required: true },
+  { name: 'email', label: 'E-mail', type: 'email', autocomplete: 'email', required: true },
+  { name: 'phone', label: 'Telefone', type: 'tel', autocomplete: 'tel', required: false, hint: 'Opcional, com DDD' },
+] as const;
+---
+
+<form
+  class:list={['contact-form', className]}
+  novalidate
+  data-contact-form
+  data-provider={formConfig.provider}
+  data-endpoint={formConfig.endpoint}
+  data-access-key={formConfig.accessKey}
+  data-subject={formConfig.subject}
+  data-msg-success={formConfig.messages.success}
+  data-msg-error={formConfig.messages.error}
+  data-msg-not-connected={formConfig.messages.notConnected}
+  data-whatsapp={site.contact.whatsapp.replace(/\D/g, '')}
+  data-email={site.contact.email}
+  data-site-name={site.name}
+>
+  {title && <h3 class="text-h3 mb-6">{title}</h3>}
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    {
+      fields.map((f) => (
+        <div class:list={['field', f.name === 'name' && 'sm:col-span-2']}>
+          <label for={`cf-${f.name}`} class="mb-1.5 block text-sm font-medium text-ink">
+            {f.label}
+            {f.required ? <span class="text-accent" aria-hidden="true"> *</span> : <span class="font-normal text-muted"> (opcional)</span>}
+          </label>
+          <input
+            id={`cf-${f.name}`}
+            name={f.name}
+            type={f.type}
+            autocomplete={f.autocomplete}
+            required={f.required}
+            aria-describedby={`cf-${f.name}-error`}
+            inputmode={f.type === 'tel' ? 'tel' : undefined}
+            class="input"
+          />
+          <p id={`cf-${f.name}-error`} class="field-error" data-error-for={f.name} />
+        </div>
+      ))
+    }
+
+    <div class="field sm:col-span-2">
+      <label for="cf-message" class="mb-1.5 block text-sm font-medium text-ink">
+        Mensagem<span class="text-accent" aria-hidden="true"> *</span>
+      </label>
+      <textarea id="cf-message" name="message" rows="5" required aria-describedby="cf-message-error" class="input resize-y"></textarea>
+      <p id="cf-message-error" class="field-error" data-error-for="message"></p>
+    </div>
+
+    <!-- Armadilha para robôs: invisível para pessoas -->
+    <div class="hidden" aria-hidden="true">
+      <label for="cf-website">Não preencha este campo</label>
+      <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+  </div>
+
+  <p class="mt-5 text-sm text-muted">
+    Seus dados serão usados apenas para responder a este contato.
+  </p>
+
+  <div class="mt-6">
+    <Button type="submit" size="lg" icon={Send} data-submit>Enviar mensagem</Button>
+  </div>
+
+  <div class="status mt-6" role="status" aria-live="polite" data-status hidden>
+    <p data-status-text></p>
+    <!-- Links de envio alternativo, criados pelo script apenas quando há canal configurado -->
+    <div class="mt-4 flex flex-wrap gap-3" data-fallback hidden></div>
+  </div>
+</form>
+
+<style>
+  .input {
+    display: block;
+    width: 100%;
+    min-height: 2.875rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-control);
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    transition: border-color 0.2s;
+  }
+  /* Campos com cantos totalmente arredondados ficam estranhos em textarea */
+  textarea.input {
+    border-radius: min(var(--radius-control), 14px);
+  }
+  .input:hover {
+    border-color: color-mix(in srgb, var(--color-ink) 35%, var(--color-line));
+  }
+  .input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+    border-color: var(--color-primary);
+  }
+  .input[aria-invalid='true'] {
+    border-color: #b42318;
+  }
+  .field-error {
+    min-height: 1.25rem;
+    margin-top: 0.35rem;
+    font-size: 0.8125rem;
+    color: #b42318;
+  }
+  .status {
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-line);
+    background: var(--color-secondary);
+    font-size: 0.9375rem;
+  }
+  .status[data-state='success'] {
+    border-color: #2e7d4f;
+    background: color-mix(in srgb, #2e7d4f 8%, var(--color-surface));
+  }
+  .status[data-state='error'] {
+    border-color: #b42318;
+    background: color-mix(in srgb, #b42318 6%, var(--color-surface));
+  }
+  .status :global(.fallback-link) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1.1rem;
+    border-radius: var(--radius-control);
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  type Data = Record<'name' | 'email' | 'phone' | 'message', string>;
+
+  const rules: Record<keyof Data, (v: string) => string | null> = {
+    name: (v) => (v.trim().length >= 2 ? null : 'Informe seu nome.'),
+    email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? null : 'Informe um e-mail válido.'),
+    phone: (v) => {
+      const d = v.replace(/\D/g, '');
+      return !d || (d.length >= 10 && d.length <= 13) ? null : 'Informe o telefone com DDD.';
+    },
+    message: (v) => (v.trim().length >= 10 ? null : 'Escreva uma mensagem com pelo menos 10 caracteres.'),
+  };
+
+  function setup(form: HTMLFormElement) {
+    const ds = form.dataset;
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const statusText = form.querySelector<HTMLElement>('[data-status-text]')!;
+    const fallback = form.querySelector<HTMLElement>('[data-fallback]')!;
+    const fallbackLink = (label: string, href: string, external = false) => {
+      const a = document.createElement('a');
+      a.className = 'fallback-link';
+      a.href = href;
+      a.textContent = label;
+      if (external) {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      }
+      return a;
+    };
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement;
+
+    const validateField = (name: keyof Data) => {
+      const el = field(name);
+      const error = rules[name](el.value);
+      const out = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`)!;
+      out.textContent = error ?? '';
+      el.setAttribute('aria-invalid', error ? 'true' : 'false');
+      return !error;
+    };
+
+    (Object.keys(rules) as (keyof Data)[]).forEach((name) => {
+      const el = field(name);
+      el.addEventListener('blur', () => el.value && validateField(name));
+      el.addEventListener('input', () => el.getAttribute('aria-invalid') === 'true' && validateField(name));
+    });
+
+    const showStatus = (state: 'success' | 'error' | 'info', text: string) => {
+      status.hidden = false;
+      status.dataset.state = state;
+      statusText.textContent = text;
+    };
+
+    const composeText = (d: Data) =>
+      [`Olá! Meu nome é ${d.name}.`, d.message, '', `E-mail: ${d.email}`, d.phone ? `Telefone: ${d.phone}` : null]
+        .filter((l) => l !== null)
+        .join('\n');
+
+    async function send(d: Data): Promise<boolean> {
+      const provider = ds.provider;
+      const payload = { ...d, subject: ds.subject, website: field('website').value };
+      if (provider === 'formspree' && ds.endpoint) {
+        const res = await fetch(ds.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ ...payload, _subject: ds.subject, _gotcha: payload.website }),
+        });
+        return res.ok;
+      }
+      if (provider === 'web3forms' && ds.accessKey) {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ ...payload, access_key: ds.accessKey, from_name: ds.siteName, botcheck: payload.website }),
+        });
+        const json = await res.json().catch(() => ({}));
+        return res.ok && json.success !== false;
+      }
+      if (provider === 'custom' && ds.endpoint) {
+        const res = await fetch(ds.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        return res.ok;
+      }
+      throw new Error('not-connected');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      fallback.hidden = true;
+
+      const valid = (Object.keys(rules) as (keyof Data)[]).map(validateField).every(Boolean);
+      if (!valid) {
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        return;
+      }
+      if (field('website').value) return; // robô
+
+      const data: Data = {
+        name: field('name').value.trim(),
+        email: field('email').value.trim(),
+        phone: field('phone').value.trim(),
+        message: field('message').value.trim(),
+      };
+
+      submit.disabled = true;
+      try {
+        const ok = await send(data);
+        if (ok) {
+          showStatus('success', ds.msgSuccess ?? '');
+          form.reset();
+        } else showStatus('error', ds.msgError ?? '');
+      } catch (err) {
+        if ((err as Error).message === 'not-connected') {
+          // Sem serviço configurado: oferece canais reais com a mensagem pronta.
+          const text = composeText(data);
+          const hasWa = Boolean(ds.whatsapp && ds.whatsapp.length >= 12);
+          const hasMail = Boolean(ds.email && ds.email.includes('@'));
+          fallback.replaceChildren();
+          if (hasWa)
+            fallback.append(
+              fallbackLink('Enviar pelo WhatsApp', `https://wa.me/${ds.whatsapp}?text=${encodeURIComponent(text)}`, true),
+            );
+          if (hasMail)
+            fallback.append(
+              fallbackLink(
+                'Enviar por e-mail',
+                `mailto:${ds.email}?subject=${encodeURIComponent(ds.subject ?? '')}&body=${encodeURIComponent(text)}`,
+              ),
+            );
+          fallback.hidden = !(hasWa || hasMail);
+          showStatus(
+            'info',
+            hasWa || hasMail ? (ds.msgNotConnected ?? '') : 'O envio pelo site ainda não está disponível. Tente novamente mais tarde.',
+          );
+        } else showStatus('error', ds.msgError ?? '');
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach(setup);
+</script>

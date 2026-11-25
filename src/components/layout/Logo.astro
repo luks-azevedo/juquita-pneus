@@ -1,0 +1,32 @@
+---
+/**
+ * Logotipo a partir de site.logo. Sem arquivo configurado, exibe o nome
+ * da empresa com a fonte de títulos do tema.
+ */
+import { site } from '../../config/site';
+
+interface Props {
+  inverted?: boolean;
+  class?: string;
+}
+const { inverted = false, class: className } = Astro.props;
+const { logo } = site;
+const src = inverted && logo.srcInverted ? logo.srcInverted : logo.src;
+---
+
+{
+  src ? (
+    <img
+      src={src}
+      alt={logo.alt || site.name}
+      width={logo.width}
+      height={logo.height}
+      class:list={['h-8 w-auto sm:h-9', className]}
+      decoding="async"
+    />
+  ) : (
+    <span class:list={['font-heading text-xl leading-none font-semibold tracking-[-0.02em] sm:text-[1.375rem]', className]}>
+      {site.name}
+    </span>
+  )
+}

@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+---
+
+<BaseLayout title="Página não encontrada" noindex hideWhatsApp>
+  <Hero
+    variant="centered"
+    eyebrow="Erro 404"
+    title="Página não encontrada."
+    description="O endereço pode ter mudado ou não existir mais."
+    primaryCta={{ label: 'Voltar ao início', href: '/' }}
+    secondaryCta={{ label: 'Falar conosco', href: '/contato' }}
+  />
+</BaseLayout>

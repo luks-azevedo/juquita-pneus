@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import ContactSection from '../components/sections/ContactSection.astro';
+import FAQSection from '../components/sections/FAQSection.astro';
+import { faq } from '../data/demo';
+---
+
+<BaseLayout
+  title="Contato"
+  description="Fale com a Viana Consultoria pelo formulário ou pelos canais de atendimento."
+>
+  <Hero
+    variant="page"
+    eyebrow="Contato"
+    title="Vamos conversar."
+    description="Conte um pouco sobre a sua empresa. Respondemos com os próximos passos."
+  />
+
+  <ContactSection
+    title="Canais de atendimento"
+    description="Prefere conversar agora? Use um dos canais abaixo."
+  />
+
+  <FAQSection tone="muted" eyebrow="Antes de enviar" title="Dúvidas comuns" items={faq.slice(0, 3)} />
+</BaseLayout>

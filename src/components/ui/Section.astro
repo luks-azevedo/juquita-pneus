@@ -1,0 +1,39 @@
+---
+/**
+ * Bloco de seção com fundo e espaçamento padronizados.
+ * tone: 'default' (fundo) · 'muted' (cor secundária) · 'surface' · 'inverted' (escuro)
+ */
+import Container from './Container.astro';
+
+export type SectionTone = 'default' | 'muted' | 'surface' | 'inverted';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  /** Remove o espaçamento superior (útil para seções consecutivas de mesmo tom). */
+  flushTop?: boolean;
+  labelledby?: string;
+  narrow?: boolean;
+  class?: string;
+}
+
+const { id, tone = 'default', flushTop = false, labelledby, narrow = false, class: className } = Astro.props;
+
+const tones = {
+  default: 'bg-bg text-ink',
+  muted: 'bg-secondary text-ink',
+  surface: 'bg-surface text-ink',
+  inverted: 'bg-inverted text-inverted-ink',
+};
+---
+
+<section
+  id={id}
+  aria-labelledby={labelledby}
+  data-tone={tone}
+  class:list={['section-space', tones[tone], flushTop && 'pt-0!', className]}
+>
+  <Container size={narrow ? 'narrow' : 'default'}>
+    <slot />
+  </Container>
+</section>

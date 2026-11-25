@@ -1,0 +1,66 @@
+---
+/**
+ * Galeria de imagens locais (otimizadas e com lazy loading).
+ * Com 5, 9, 13... imagens, a primeira ganha destaque; caso contrário, grade uniforme.
+ */
+import { Image } from 'astro:assets';
+import Section, { type SectionTone } from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Badge from '../ui/Badge.astro';
+import type { ContentImage } from '../../types/content';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  images: ContentImage[];
+  /** Marca as imagens como ilustrativas. */
+  illustrative?: boolean;
+}
+
+const { id = 'galeria', tone = 'default', eyebrow, title, description, images, illustrative = false } = Astro.props;
+const headingId = `${id}-title`;
+// Primeira imagem em destaque só quando as linhas fecham completas (5, 9, 13... imagens).
+const featured = images.length % 4 === 1;
+const cols = featured || images.length % 3 !== 0 ? 'lg:grid-cols-4' : 'lg:grid-cols-3';
+---
+
+<Section id={id} tone={tone} labelledby={headingId}>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <SectionHeading id={headingId} eyebrow={eyebrow} title={title} description={description} inverted={tone === 'inverted'} />
+    {illustrative && <Badge tone="notice">Imagens ilustrativas</Badge>}
+  </div>
+
+  <ul class:list={['gallery mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:mt-16', cols]} role="list">
+    {
+      images.map((img, i) => (
+        <li class:list={['overflow-hidden rounded-card', featured && i === 0 && 'col-span-2 row-span-2']}>
+          <figure class="h-full">
+            <Image
+              src={img.src}
+              alt={img.alt}
+              widths={featured && i === 0 ? [600, 900, 1200] : [360, 600]}
+              sizes={featured && i === 0 ? '(min-width: 1024px) 50vw, 100vw' : '(min-width: 1024px) 25vw, 50vw'}
+              loading="lazy"
+              class="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+            />
+            {img.caption && <figcaption class="sr-only">{img.caption}</figcaption>}
+          </figure>
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+
+<style>
+  .gallery {
+    grid-auto-rows: minmax(9rem, 22vw);
+  }
+  @media (min-width: 64rem) {
+    .gallery {
+      grid-auto-rows: 15rem;
+    }
+  }
+</style>

@@ -1,0 +1,138 @@
+---
+/**
+ * Layout compartilhado por todas as páginas: SEO, fontes, tema, header e footer.
+ *
+ * <BaseLayout title="Sobre" description="...">  → "Sobre | Empresa"
+ * <BaseLayout>                                    → site.seo.defaultTitle
+ */
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import WhatsAppButton from '../components/layout/WhatsAppButton.astro';
+import { site } from '../config/site';
+import { theme } from '../config/theme';
+import { themeToCss } from '../lib/theme';
+import { phoneUrl, formattedAddress, socialLinks, missingSiteFields } from '../lib/contact';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Imagem de compartilhamento específica da página (caminho em /public). */
+  ogImage?: string;
+  /** Impede indexação (ex.: página 404). */
+  noindex?: boolean;
+  /** Oculta o botão flutuante de WhatsApp nesta página. */
+  hideWhatsApp?: boolean;
+}
+
+const {
+  title,
+  description = site.seo.defaultDescription,
+  ogImage = site.seo.ogImage,
+  noindex = false,
+  hideWhatsApp = false,
+} = Astro.props;
+
+const fullTitle = title ? site.seo.titleTemplate.replace('%s', title) : site.seo.defaultTitle;
+const domain = site.domain.replace(/\/+$/, '');
+const canonical = domain ? new URL(Astro.url.pathname, domain).href : null;
+const ogImageUrl = domain ? new URL(ogImage, domain).href : ogImage;
+const sameFont = theme.fonts.heading.name === theme.fonts.body.name;
+
+// Dados estruturados apenas com informações realmente preenchidas.
+const address = site.address;
+const sameAs = socialLinks().map((s) => s.href);
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: site.name,
+  description: site.description,
+  ...(domain && { url: domain, image: ogImageUrl }),
+  ...(site.contact.email && { email: site.contact.email }),
+  ...(phoneUrl() && { telephone: phoneUrl()!.replace('tel:', '') }),
+  ...(formattedAddress() && {
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: address.street || undefined,
+      addressLocality: address.city || undefined,
+      addressRegion: address.state || undefined,
+      postalCode: address.zip || undefined,
+      addressCountry: 'BR',
+    },
+  }),
+  ...(sameAs.length && { sameAs }),
+};
+
+const missing = import.meta.env.DEV ? missingSiteFields() : [];
+---
+
+<!doctype html>
+<html lang={site.seo.language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+    <meta name="theme-color" content={theme.colors.background} />
+    <link rel="icon" href={site.favicon} type={site.favicon.endsWith('.svg') ? 'image/svg+xml' : undefined} />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    {domain && <link rel="sitemap" href="/sitemap-index.xml" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={site.seo.locale} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Pré-carrega só o arquivo "latin" de cada família (o restante carrega sob demanda) -->
+    <Font cssVariable="--ff-body" preload={[{ subset: 'latin', style: 'normal' }]} />
+    {!sameFont && <Font cssVariable="--ff-heading" preload={[{ subset: 'latin', style: 'normal' }]} />}
+    <style is:inline set:html={themeToCss(theme)}></style>
+
+    {!noindex && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+  </head>
+
+  <body class="flex min-h-dvh flex-col">
+    <a
+      href="#conteudo"
+      class="sr-only z-50 rounded-control bg-primary px-4 py-3 text-primary-contrast focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+    >
+      Pular para o conteúdo
+    </a>
+
+    {
+      site.demo && (
+        <div class="bg-ink px-4 py-2 text-center text-xs text-bg sm:text-sm" role="note">
+          Site demonstrativo do template APRESENTA Studio — empresa, textos e imagens são fictícios.
+        </div>
+      )
+    }
+
+    <Header />
+
+    <main id="conteudo" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    {!hideWhatsApp && <WhatsAppButton variant="floating" />}
+
+    {
+      missing.length > 0 && (
+        <details class="fixed bottom-4 left-4 z-50 max-w-xs rounded-card border border-dashed border-accent bg-surface px-4 py-2.5 text-xs shadow-lg">
+          <summary class="cursor-pointer font-semibold text-accent">Dev: {missing.length} campos vazios em site.ts</summary>
+          <ul class="mt-2 mb-1 list-disc pl-4 text-ink">
+            {missing.map((m) => <li>{m}</li>)}
+          </ul>
+        </details>
+      )
+    }
+  </body>
+</html>

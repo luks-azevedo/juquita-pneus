@@ -1,0 +1,12 @@
+---
+/** Limita a largura do conteúdo (theme.layout.containerWidth). */
+interface Props {
+  size?: 'narrow' | 'default';
+  class?: string;
+}
+const { size = 'default', class: className } = Astro.props;
+---
+
+<div class:list={['container-page', size === 'narrow' && 'max-w-3xl!', className]}>
+  <slot />
+</div>

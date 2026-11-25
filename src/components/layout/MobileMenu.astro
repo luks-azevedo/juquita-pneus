@@ -1,0 +1,113 @@
+---
+/**
+ * Menu mobile com <dialog> nativo: foco preso no menu, Esc para fechar
+ * e fundo inerte sem bibliotecas.
+ */
+import X from '@lucide/astro/icons/x';
+import Logo from './Logo.astro';
+import Button from '../ui/Button.astro';
+import { navigation } from '../../config/navigation';
+import { site } from '../../config/site';
+import { whatsappUrl } from '../../lib/contact';
+
+interface Props {
+  isActive: (href: string) => boolean;
+}
+const { isActive } = Astro.props;
+const wa = whatsappUrl();
+---
+
+<dialog id="mobile-menu" class="mobile-menu" aria-label="Menu" data-mobile-menu>
+  <div class="flex min-h-full flex-col">
+    <div class="container-page flex h-16 items-center justify-between">
+      <span aria-hidden="true"><Logo /></span>
+      <button
+        type="button"
+        class="-mr-2 grid size-11 place-items-center rounded-control text-ink"
+        data-menu-close
+        autofocus
+      >
+        <X size={24} aria-hidden="true" />
+        <span class="sr-only">Fechar menu</span>
+      </button>
+    </div>
+
+    <nav aria-label="Navegação principal (mobile)" class="container-page flex-1 pt-6">
+      <ul>
+        {
+          navigation.main.map((item) => (
+            <li class="border-b border-line">
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                class="block py-4 font-heading text-[1.75rem] text-ink aria-[current=page]:text-primary"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="container-page flex flex-col gap-3 py-8">
+      {navigation.cta && <Button href={navigation.cta.href} size="lg" fullWidth>{navigation.cta.label}</Button>}
+      {
+        wa && (
+          <Button href={wa} variant="secondary" size="lg" fullWidth>
+            Conversar no WhatsApp
+          </Button>
+        )
+      }
+      <p class="mt-2 text-center text-sm text-muted">{site.name}</p>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .mobile-menu {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+  }
+
+  .mobile-menu::backdrop {
+    background: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-menu[open] {
+      animation: menu-in 0.25s ease-out;
+    }
+    @keyframes menu-in {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+    }
+  }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-mobile-menu]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+
+  if (dialog && openBtn) {
+    openBtn.addEventListener('click', () => {
+      dialog.showModal();
+      openBtn.setAttribute('aria-expanded', 'true');
+    });
+    dialog.addEventListener('close', () => openBtn.setAttribute('aria-expanded', 'false'));
+    dialog.querySelector('[data-menu-close]')?.addEventListener('click', () => dialog.close());
+    // Fecha ao navegar (inclusive âncoras na mesma página)
+    dialog.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => dialog.close()));
+    // Fecha se a tela crescer para desktop
+    window.matchMedia('(min-width: 64rem)').addEventListener('change', (e) => e.matches && dialog.close());
+  }
+</script>

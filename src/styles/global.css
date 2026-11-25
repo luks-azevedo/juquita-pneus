@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/*
+ * Os valores reais vêm de src/config/theme.ts (variáveis --c-*, --ff-*, --r-* etc.
+ * injetadas pelo BaseLayout). Aqui apenas os expomos como utilitários do Tailwind:
+ * bg-primary, text-muted, border-line, font-heading, rounded-card...
+ * Não edite cores aqui — edite theme.ts.
+ */
+@theme inline {
+  --color-primary: var(--c-primary);
+  --color-primary-contrast: var(--c-primary-contrast);
+  --color-secondary: var(--c-secondary);
+  --color-accent: var(--c-accent);
+  --color-bg: var(--c-background);
+  --color-surface: var(--c-surface);
+  --color-ink: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-border);
+  --color-inverted: var(--c-inverted);
+  --color-inverted-ink: var(--c-inverted-text);
+
+  --font-sans: var(--ff-body), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--ff-heading), var(--ff-body), serif;
+
+  --radius-control: var(--r-control);
+  --radius-card: var(--r-card);
+}
+
+@layer base {
+  html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-padding-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--base-size);
+    line-height: 1.65;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    font-weight: var(--heading-weight);
+    letter-spacing: var(--heading-tracking);
+    line-height: var(--heading-leading);
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+  }
+}
+
+/* Largura do conteúdo (theme.layout.containerWidth) */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (min-width: 40rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Espaçamento vertical das seções (theme.layout.sectionSpacing) */
+@utility section-space {
+  padding-block: var(--section-y-sm);
+
+  @media (min-width: 64rem) {
+    padding-block: var(--section-y-lg);
+  }
+}
+
+/* Escala tipográfica */
+@utility text-display {
+  font-size: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
+}
+
+@utility text-h2 {
+  font-size: clamp(1.9rem, 1.4rem + 2vw, 3rem);
+}
+
+@utility text-h3 {
+  font-size: clamp(1.2rem, 1.1rem + 0.4vw, 1.4rem);
+  line-height: 1.25;
+}
+
+@utility text-lead {
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  line-height: 1.6;
+}
+
+/* Conteúdo vindo de texto corrido (parágrafos de páginas) */
+.prose-content > * + * {
+  margin-top: 1.1em;
+}

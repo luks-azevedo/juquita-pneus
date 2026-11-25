@@ -1,0 +1,49 @@
+---
+/**
+ * Bloco de conteúdo. Com `href`, o card inteiro vira um link acessível
+ * (o título recebe o link e uma área clicável cobre o card).
+ */
+interface Props {
+  as?: 'article' | 'div' | 'li';
+  variant?: 'bordered' | 'surface' | 'plain';
+  href?: string;
+  class?: string;
+}
+
+const { as: Tag = 'article', variant = 'bordered', href, class: className } = Astro.props;
+
+const variants = {
+  bordered: 'border border-line bg-surface',
+  surface: 'bg-surface',
+  plain: '',
+};
+---
+
+<Tag
+  class:list={[
+    'card group relative flex flex-col rounded-card',
+    variant !== 'plain' && 'p-6 sm:p-7',
+    variants[variant],
+    href && 'transition-colors duration-200 hover:border-ink/40',
+    className,
+  ]}
+>
+  <slot />
+</Tag>
+
+<style>
+  /* Torna o card inteiro clicável a partir do link do título (.card-link) */
+  .card :global(.card-link)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .card :global(.card-link):focus-visible {
+    outline: none;
+  }
+  .card:has(:global(.card-link):focus-visible) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+</style>

@@ -1,0 +1,78 @@
+---
+/**
+ * Chamada para ação.
+ * - variant="band" → faixa escura de largura total
+ * - variant="card" → bloco destacado dentro do conteúdo
+ * Sem `primaryCta`, usa o WhatsApp configurado (ou a página de contato).
+ */
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import Button from '../ui/Button.astro';
+import Container from '../ui/Container.astro';
+import { primaryContactHref } from '../../lib/contact';
+import type { CTA } from '../../types/content';
+
+interface Props {
+  id?: string;
+  title: string;
+  description?: string;
+  primaryCta?: CTA;
+  secondaryCta?: CTA;
+  variant?: 'band' | 'card';
+}
+
+const {
+  id = 'cta',
+  title,
+  description,
+  primaryCta = { label: 'Fale conosco', href: primaryContactHref() },
+  secondaryCta,
+  variant = 'band',
+} = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<section id={id} aria-labelledby={headingId} class:list={[variant === 'card' && 'section-space pt-0!']}>
+  {
+    variant === 'band' ? (
+      <div class="bg-inverted text-inverted-ink">
+        <Container class="section-space flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+          <div class="max-w-2xl">
+            <h2 id={headingId} class="text-h2">
+              {title}
+            </h2>
+            {description && <p class="text-lead mt-5 text-inverted-ink/85">{description}</p>}
+          </div>
+          <div class="flex shrink-0 flex-col gap-3 sm:flex-row">
+            <Button href={primaryCta.href} variant="inverted" size="lg" icon={ArrowRight}>
+              {primaryCta.label}
+            </Button>
+            {secondaryCta && (
+              <Button href={secondaryCta.href} variant="outline-inverted" size="lg">
+                {secondaryCta.label}
+              </Button>
+            )}
+          </div>
+        </Container>
+      </div>
+    ) : (
+      <Container>
+        <div class="rounded-card bg-secondary px-6 py-12 text-center sm:px-12 lg:py-16">
+          <h2 id={headingId} class="text-h2 mx-auto max-w-2xl">
+            {title}
+          </h2>
+          {description && <p class="text-lead mx-auto mt-5 max-w-xl text-muted">{description}</p>}
+          <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button href={primaryCta.href} size="lg" icon={ArrowRight}>
+              {primaryCta.label}
+            </Button>
+            {secondaryCta && (
+              <Button href={secondaryCta.href} variant="secondary" size="lg">
+                {secondaryCta.label}
+              </Button>
+            )}
+          </div>
+        </div>
+      </Container>
+    )
+  }
+</section>

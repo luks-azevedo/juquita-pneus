@@ -1,0 +1,64 @@
+---
+/**
+ * Diferenciais ou etapas.
+ * - variant="columns"  → ícone + título + texto em colunas
+ * - variant="numbered" → etapas numeradas (ex.: "Como funciona")
+ */
+import Section, { type SectionTone } from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import type { FeatureItem } from '../../types/content';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  items: FeatureItem[];
+  variant?: 'columns' | 'numbered';
+}
+
+const { id = 'diferenciais', tone = 'default', eyebrow, title, description, items, variant = 'columns' } = Astro.props;
+const headingId = `${id}-title`;
+const inverted = tone === 'inverted';
+const cols = items.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3';
+---
+
+<Section id={id} tone={tone} labelledby={headingId}>
+  <SectionHeading id={headingId} eyebrow={eyebrow} title={title} description={description} inverted={inverted} />
+
+  {
+    variant === 'columns' ? (
+      <ul class:list={['mt-12 grid gap-10 sm:grid-cols-2 lg:mt-16 lg:gap-12', cols]} role="list">
+        {items.map((item) => (
+          <li class:list={['border-t pt-6', inverted ? 'border-inverted-ink/20' : 'border-line']}>
+            {item.icon && <item.icon size={26} stroke-width={1.5} class={inverted ? '' : 'text-primary'} aria-hidden="true" />}
+            <h3 class="text-h3 mt-5">{item.title}</h3>
+            <p class:list={['mt-3', inverted ? 'text-inverted-ink/85' : 'text-muted']}>{item.description}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <ol class:list={['mt-12 grid gap-8 sm:grid-cols-2 lg:mt-16 lg:gap-10', cols]} role="list">
+        {items.map((item, i) => (
+          <li class="relative">
+            <span
+              class:list={[
+                'grid size-11 place-items-center rounded-full border font-heading text-sm tabular-nums',
+                inverted ? 'border-inverted-ink/40' : 'border-line bg-surface text-primary',
+              ]}
+              aria-hidden="true"
+            >
+              {i + 1}
+            </span>
+            <h3 class="text-h3 mt-5">
+              <span class="sr-only">Etapa {i + 1}: </span>
+              {item.title}
+            </h3>
+            <p class:list={['mt-3', inverted ? 'text-inverted-ink/85' : 'text-muted']}>{item.description}</p>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</Section>

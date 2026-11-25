@@ -1,0 +1,66 @@
+---
+/**
+ * Portfólio / projetos. O primeiro item ganha destaque.
+ * Com `illustrative`, exibe um aviso de que os projetos são exemplos.
+ */
+import { Image } from 'astro:assets';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import Section, { type SectionTone } from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Badge from '../ui/Badge.astro';
+import type { PortfolioItem } from '../../types/content';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  items: PortfolioItem[];
+  illustrative?: boolean;
+}
+
+const { id = 'portfolio', tone = 'default', eyebrow, title, description, items, illustrative = false } = Astro.props;
+const headingId = `${id}-title`;
+---
+
+<Section id={id} tone={tone} labelledby={headingId}>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <SectionHeading id={headingId} eyebrow={eyebrow} title={title} description={description} inverted={tone === 'inverted'} />
+    {illustrative && <Badge tone="notice">Exemplos ilustrativos</Badge>}
+  </div>
+
+  <ul class="mt-12 grid gap-x-6 gap-y-12 md:grid-cols-2 lg:mt-16" role="list">
+    {
+      items.map((p, i) => (
+        <li class:list={['group relative', i === 0 && 'md:col-span-2']}>
+          <article class:list={[i === 0 && 'grid gap-8 lg:grid-cols-12 lg:items-end']}>
+            <div class:list={['overflow-hidden rounded-card bg-secondary', i === 0 && 'lg:col-span-8']}>
+              <Image
+                src={p.image.src}
+                alt={p.image.alt}
+                widths={i === 0 ? [640, 960, 1400] : [480, 800]}
+                sizes={i === 0 ? '(min-width: 1024px) 66vw, 100vw' : '(min-width: 768px) 50vw, 100vw'}
+                class="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              />
+            </div>
+            <div class:list={[i === 0 ? 'lg:col-span-4' : 'mt-6']}>
+              <p class="text-sm text-accent">{p.category}</p>
+              <h3 class="text-h3 mt-2">
+                {p.href ? (
+                  <a href={p.href} class="inline-flex items-start gap-1.5 after:absolute after:inset-0">
+                    {p.title}
+                    <ArrowUpRight size={20} class="mt-0.5 shrink-0" aria-hidden="true" />
+                  </a>
+                ) : (
+                  p.title
+                )}
+              </h3>
+              <p class="mt-3 text-muted">{p.description}</p>
+            </div>
+          </article>
+        </li>
+      ))
+    }
+  </ul>
+</Section>

@@ -1,0 +1,79 @@
+---
+import Menu from '@lucide/astro/icons/menu';
+import Logo from './Logo.astro';
+import MobileMenu from './MobileMenu.astro';
+import Button from '../ui/Button.astro';
+import { navigation } from '../../config/navigation';
+import { site } from '../../config/site';
+
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isActive = (href: string) => {
+  const target = href.split('#')[0].replace(/\/+$/, '') || '/';
+  return target === path;
+};
+---
+
+<header class="sticky top-0 z-40 border-b border-transparent bg-bg/95 transition-colors duration-300" data-header>
+  <div class="container-page flex h-16 items-center justify-between gap-6 lg:h-20">
+    <a href="/" class="shrink-0" aria-label={`${site.name} — página inicial`}>
+      <Logo />
+    </a>
+
+    <nav aria-label="Navegação principal" class="hidden lg:block">
+      <ul class="flex items-center gap-8">
+        {
+          navigation.main.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                class="nav-link relative py-2 text-[0.9375rem] text-muted transition-colors hover:text-ink aria-[current=page]:text-ink"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      {navigation.cta && <Button href={navigation.cta.href} class="hidden! sm:inline-flex!">{navigation.cta.label}</Button>}
+      <button
+        type="button"
+        class="-mr-2 grid size-11 place-items-center rounded-control text-ink lg:hidden"
+        aria-haspopup="dialog"
+        aria-controls="mobile-menu"
+        data-menu-open
+      >
+        <Menu size={24} aria-hidden="true" />
+        <span class="sr-only">Abrir menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<MobileMenu isActive={isActive} />
+
+<style>
+  [data-header].is-scrolled {
+    border-color: var(--color-line);
+  }
+  .nav-link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  if (header) {
+    const update = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  }
+</script>

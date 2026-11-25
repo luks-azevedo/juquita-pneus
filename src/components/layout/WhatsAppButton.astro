@@ -1,0 +1,44 @@
+---
+/**
+ * Botão de WhatsApp com o número de site.ts.
+ * - variant="floating": botão fixo no canto da tela (usado no BaseLayout)
+ * - variant="inline":   botão comum, para usar dentro de seções
+ * Se o número não estiver configurado, nada é renderizado.
+ */
+import MessageCircle from '@lucide/astro/icons/message-circle';
+import Button from '../ui/Button.astro';
+import { whatsappUrl } from '../../lib/contact';
+
+interface Props {
+  /** Mensagem inicial. Padrão: site.contact.whatsappMessage */
+  message?: string;
+  label?: string;
+  variant?: 'floating' | 'inline';
+  class?: string;
+}
+
+const { message, label = 'Conversar no WhatsApp', variant = 'inline', class: className } = Astro.props;
+const href = whatsappUrl(message);
+---
+
+{
+  href &&
+    (variant === 'floating' ? (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        class:list={[
+          'fixed right-4 bottom-4 z-30 inline-flex size-14 items-center justify-center rounded-full bg-[#1F7A4D] text-white shadow-[0_8px_24px_-8px_rgb(0_0_0/0.45)] transition-transform duration-200 hover:scale-105 sm:right-6 sm:bottom-6',
+          className,
+        ]}
+      >
+        <MessageCircle size={26} aria-hidden="true" />
+        <span class="sr-only">{label} (abre em nova aba)</span>
+      </a>
+    ) : (
+      <Button href={href} icon={MessageCircle} iconPosition="start" class={className}>
+        {label}
+      </Button>
+    ))
+}

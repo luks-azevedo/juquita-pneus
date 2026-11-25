@@ -1,0 +1,68 @@
+---
+/**
+ * Botão/link. Com `href` renderiza <a>; sem `href`, um <button> (use type="submit" em formulários).
+ * `icon` aceita qualquer ícone do Lucide, ex.: import ArrowRight from '@lucide/astro/icons/arrow-right'
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Variant = 'primary' | 'secondary' | 'ghost' | 'inverted' | 'outline-inverted';
+
+interface Props extends Omit<HTMLAttributes<'a'> & HTMLAttributes<'button'>, 'type'> {
+  href?: string;
+  type?: 'button' | 'submit';
+  variant?: Variant;
+  size?: 'md' | 'lg';
+  icon?: any;
+  iconPosition?: 'start' | 'end';
+  fullWidth?: boolean;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  icon: Icon,
+  iconPosition = 'end',
+  fullWidth = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const isExternal = href ? /^(https?:)?\/\//.test(href) : false;
+
+const variants: Record<Variant, string> = {
+  primary: 'bg-primary text-primary-contrast hover:brightness-[1.12]',
+  secondary: 'border border-line bg-surface text-ink hover:border-ink',
+  ghost: 'text-ink underline-offset-4 hover:underline px-0!',
+  inverted: 'bg-inverted-ink text-inverted hover:opacity-90',
+  'outline-inverted': 'border border-inverted-ink/40 text-inverted-ink hover:border-inverted-ink',
+};
+
+const classes = [
+  'group/btn inline-flex items-center justify-center gap-2 rounded-control font-medium leading-none whitespace-nowrap',
+  'transition-[filter,opacity,border-color,background-color] duration-200 disabled:cursor-not-allowed disabled:opacity-60',
+  size === 'lg' ? 'min-h-13 px-6 text-base' : 'min-h-11 px-5 text-[0.9375rem]',
+  fullWidth && 'w-full',
+  variants[variant],
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+
+const Tag = href ? 'a' : 'button';
+const tagProps = href
+  ? { href, ...(isExternal && { target: '_blank', rel: 'noopener noreferrer' }) }
+  : { type };
+---
+
+<Tag class={classes} {...tagProps} {...rest}>
+  {Icon && iconPosition === 'start' && <Icon size={18} aria-hidden="true" />}
+  <span><slot /></span>
+  {
+    Icon && iconPosition === 'end' && (
+      <Icon size={18} aria-hidden="true" class="transition-transform duration-200 group-hover/btn:translate-x-0.5" />
+    )
+  }
+  {isExternal && <span class="sr-only">(abre em nova aba)</span>}
+</Tag>

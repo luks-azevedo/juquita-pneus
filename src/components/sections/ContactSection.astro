@@ -1,0 +1,113 @@
+---
+/**
+ * Contato: canais configurados em site.ts + formulário.
+ * Apenas canais preenchidos aparecem.
+ */
+import Phone from '@lucide/astro/icons/phone';
+import Mail from '@lucide/astro/icons/mail';
+import MapPin from '@lucide/astro/icons/map-pin';
+import Clock from '@lucide/astro/icons/clock';
+import MessageCircle from '@lucide/astro/icons/message-circle';
+import Section, { type SectionTone } from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import ContactForm from '../forms/ContactForm.astro';
+import { site } from '../../config/site';
+import { whatsappUrl, phoneUrl, emailUrl, formatPhone, formattedAddress } from '../../lib/contact';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  showForm?: boolean;
+  /** Mensagem inicial do link de WhatsApp desta seção. */
+  whatsappMessage?: string;
+}
+
+const {
+  id = 'contato',
+  tone = 'default',
+  eyebrow,
+  title,
+  description,
+  showForm = true,
+  whatsappMessage,
+} = Astro.props;
+const headingId = `${id}-title`;
+
+const address = formattedAddress();
+const channels = [
+  whatsappUrl(whatsappMessage) && {
+    icon: MessageCircle,
+    label: 'WhatsApp',
+    value: formatPhone(site.contact.whatsapp),
+    href: whatsappUrl(whatsappMessage)!,
+    external: true,
+  },
+  phoneUrl() && { icon: Phone, label: 'Telefone', value: formatPhone(site.contact.phone), href: phoneUrl()! },
+  emailUrl() && { icon: Mail, label: 'E-mail', value: site.contact.email, href: emailUrl()! },
+  address && {
+    icon: MapPin,
+    label: 'Endereço',
+    value: address,
+    href: site.address.mapsUrl || undefined,
+    external: true,
+  },
+  site.contact.hours && { icon: Clock, label: 'Atendimento', value: site.contact.hours },
+].filter(Boolean) as { icon: any; label: string; value: string; href?: string; external?: boolean }[];
+---
+
+<Section id={id} tone={tone} labelledby={headingId}>
+  <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+    <div class="lg:col-span-5">
+      <SectionHeading id={headingId} eyebrow={eyebrow} title={title} description={description} />
+
+      {
+        channels.length > 0 && (
+          <ul class="mt-10 space-y-6">
+            {channels.map((c) => (
+              <li class="flex gap-4">
+                <c.icon size={22} stroke-width={1.5} class="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <p class="text-sm text-muted">{c.label}</p>
+                  {c.href ? (
+                    <a
+                      href={c.href}
+                      class="break-words text-ink underline-offset-4 hover:underline"
+                      {...(c.external && { target: '_blank', rel: 'noopener noreferrer' })}
+                    >
+                      {c.value}
+                      {c.external && <span class="sr-only"> (abre em nova aba)</span>}
+                    </a>
+                  ) : (
+                    <p class="text-ink">{c.value}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        channels.length === 0 && site.demo && (
+          <p class="mt-10 rounded-card border border-dashed border-line p-5 text-sm text-muted">
+            Site demonstrativo: telefone, WhatsApp, e-mail e endereço aparecem aqui quando preenchidos em
+            <code class="text-ink">src/config/site.ts</code>.
+          </p>
+        )
+      }
+    </div>
+
+    {
+      showForm && (
+        <div class="lg:col-span-7">
+          <div class="rounded-card border border-line bg-surface p-6 sm:p-10">
+            <ContactForm />
+          </div>
+        </div>
+      )
+    }
+  </div>
+</Section>
