@@ -2,54 +2,45 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/sections/Hero.astro';
 import AboutSection from '../components/sections/AboutSection.astro';
-import BenefitsSection from '../components/sections/BenefitsSection.astro';
 import GallerySection from '../components/sections/GallerySection.astro';
 import CTASection from '../components/sections/CTASection.astro';
-import { benefits, gallery } from '../data/demo';
+import { photos, gallery } from '../data/juquita';
+import { whatsappMessages } from '../config/site';
+import { whatsappUrl } from '../lib/contact';
+
+const agendar = whatsappUrl(whatsappMessages.agendar) ?? '/contato';
 ---
 
 <BaseLayout
   title="Sobre"
-  description="Conheça a Viana Consultoria e a forma como conduzimos cada projeto de gestão e finanças."
+  description="A Juquita Pneus é um centro automotivo em Conselheiro Lafaiete desde 1957. Pneus, freios, suspensão e mecânica."
 >
   <Hero
     variant="page"
     eyebrow="Sobre"
-    title="Uma consultoria próxima, com foco no dia a dia da empresa."
-    description="Acreditamos que boa gestão começa com informação organizada e conversas francas."
+    title="Centro automotivo desde 1957"
+    description="Uma oficina de Conselheiro Lafaiete com pneus, freios, suspensão e mecânica em um só lugar."
   />
 
   <AboutSection
     id="historia"
-    eyebrow="Como trabalhamos"
-    title="Entender antes de propor."
+    eyebrow="A Juquita"
+    title="Tradição que segue rodando"
     paragraphs={[
-      'Cada projeto começa com uma escuta cuidadosa: quem são os sócios, como a equipe trabalha e quais decisões estão travadas.',
-      'A partir daí, propomos um caminho com etapas claras, entregas parciais e acompanhamento — sem relatórios que ficam na gaveta.',
-      'O objetivo é deixar a empresa mais autônoma: com rotinas que continuam funcionando depois que o projeto termina.',
+      'A Juquita Pneus está em Conselheiro Lafaiete desde 1957.',
+      'No bairro Santa Matilde, o centro automotivo reúne serviços de pneus, freios, suspensão e mecânica.',
+      'O atendimento é de segunda a sexta, das 7h45 às 18h, com agendamento pelo WhatsApp.',
     ]}
-    highlights={[
-      { title: 'Atendimento', description: 'Presencial e online' },
-      { title: 'Formato', description: 'Projetos e mentorias' },
-      { title: 'Público', description: 'Pequenas e médias empresas' },
-      { title: 'Linguagem', description: 'Simples e direta' },
-    ]}
+    image={photos.fachada}
+    imagePosition="right"
   />
 
-  <BenefitsSection tone="inverted" eyebrow="Princípios" title="O que não abrimos mão" items={benefits} />
-
-  <GallerySection
-    eyebrow="Espaço"
-    title="Um ambiente pensado para boas conversas"
-    description="Use esta seção para fotos do espaço, da equipe ou do trabalho."
-    images={gallery.slice(0, 5)}
-    illustrative
-  />
+  <GallerySection tone="muted" eyebrow="A oficina" title="Por dentro da Juquita" images={gallery} />
 
   <CTASection
-    variant="card"
-    title="Quer saber se a consultoria faz sentido para você?"
-    description="Conte um pouco sobre a sua empresa e indicamos o melhor formato."
-    primaryCta={{ label: 'Falar com a consultoria', href: '/contato' }}
+    title="Bora cuidar do seu carro?"
+    description="Agende o serviço pelo WhatsApp."
+    primaryCta={{ label: 'Agendar pelo WhatsApp', href: agendar }}
+    secondaryCta={{ label: 'Ver serviços', href: '/servicos' }}
   />
 </BaseLayout>

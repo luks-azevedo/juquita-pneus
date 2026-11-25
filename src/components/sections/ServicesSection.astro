@@ -28,6 +28,8 @@ interface Props {
 const { id = 'servicos', tone = 'default', eyebrow, title, description, items, variant = 'grid', limit, cta } = Astro.props;
 const list = limit ? items.slice(0, limit) : items;
 const headingId = `${id}-title`;
+// 4, 8... itens → 4 colunas; demais → 3 (evita item sozinho na última linha)
+const gridCols = list.length % 4 === 0 ? 'lg:grid-cols-4' : 'lg:grid-cols-3';
 ---
 
 <Section id={id} tone={tone} labelledby={headingId}>
@@ -44,7 +46,7 @@ const headingId = `${id}-title`;
 
   {
     variant === 'grid' ? (
-      <ul class="mt-12 grid gap-5 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3" role="list">
+      <ul class:list={['mt-12 grid gap-5 sm:grid-cols-2 lg:mt-16', gridCols]} role="list">
         {list.map((s) => (
           <Card as="li" href={s.href}>
             {s.icon && <s.icon size={28} stroke-width={1.5} class="text-primary" aria-hidden="true" />}

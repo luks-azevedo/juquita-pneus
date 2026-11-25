@@ -1,0 +1,162 @@
+---
+/**
+ * Horários + endereço + ações (WhatsApp, Maps, Instagram).
+ * Usa site.openingHours; o dia de hoje é destacado no navegador.
+ */
+import MapPin from '@lucide/astro/icons/map-pin';
+import MessageCircle from '@lucide/astro/icons/message-circle';
+import Camera from '@lucide/astro/icons/camera';
+import Section, { type SectionTone } from '../ui/Section.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+import Button from '../ui/Button.astro';
+import { site } from '../../config/site';
+import { whatsappUrl, formattedAddress, formatPhone } from '../../lib/contact';
+
+interface Props {
+  id?: string;
+  tone?: SectionTone;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  /** Mensagem do botão de WhatsApp. */
+  whatsappMessage?: string;
+  whatsappLabel?: string;
+}
+
+const {
+  id = 'visite',
+  tone = 'default',
+  eyebrow,
+  title,
+  description,
+  whatsappMessage,
+  whatsappLabel = 'Reservar pelo WhatsApp',
+} = Astro.props;
+
+const headingId = `${id}-title`;
+const hours = site.openingHours ?? [];
+const fmt = (t: string) => {
+  const [h, m] = t.split(':');
+  return `${Number(h)}h${m !== '00' ? m : ''}`;
+};
+const wa = whatsappUrl(whatsappMessage);
+const address = formattedAddress();
+const instagram = site.social.instagram;
+const igHandle = instagram ? `@${instagram.replace(/\/+$/, '').split('/').pop()}` : '';
+---
+
+<Section id={id} tone={tone} labelledby={headingId}>
+  <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+    <div class="lg:col-span-5">
+      <SectionHeading id={headingId} eyebrow={eyebrow} title={title} description={description} />
+
+      {
+        address && (
+          <div class="mt-10 flex gap-4">
+            <MapPin size={24} stroke-width={1.6} class="mt-0.5 shrink-0 text-accent" aria-hidden="true" />
+            <div>
+              <p class="text-sm text-muted">Endereço</p>
+              <p class="text-lg text-ink">{address}</p>
+            </div>
+          </div>
+        )
+      }
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        {
+          wa && (
+            <Button href={wa} size="lg" icon={MessageCircle} iconPosition="start">
+              {whatsappLabel}
+            </Button>
+          )
+        }
+        {
+          site.address.mapsUrl && (
+            <Button href={site.address.mapsUrl} size="lg" variant="secondary" icon={MapPin} iconPosition="start">
+              Como chegar
+            </Button>
+          )
+        }
+      </div>
+
+      {
+        (wa || instagram) && (
+          <ul class="mt-8 space-y-2 text-muted">
+            {wa && <li>WhatsApp: {formatPhone(site.contact.whatsapp)}</li>}
+            {instagram && (
+              <li class="flex items-center gap-2">
+                <Camera size={18} aria-hidden="true" />
+                <a href={instagram} target="_blank" rel="noopener noreferrer" class="text-ink underline underline-offset-4">
+                  {igHandle}
+                  <span class="sr-only"> no Instagram (abre em nova aba)</span>
+                </a>
+                <span>· agenda de shows e novidades</span>
+              </li>
+            )}
+          </ul>
+        )
+      }
+    </div>
+
+    {
+      hours.length > 0 && (
+        <div class="lg:col-span-6 lg:col-start-7">
+          <div class="hours rounded-card border border-line bg-surface p-6 text-ink sm:p-9">
+            <h3 class="text-h3">Horário de funcionamento</h3>
+            <dl class="mt-6">
+              {hours.map((d) => (
+                <div class="hours__row" data-day={d.day}>
+                  <dt>{d.label}</dt>
+                  <dd>{d.hours ? `${fmt(d.hours[0])} às ${fmt(d.hours[1])}` : 'Fechado'}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      )
+    }
+  </div>
+</Section>
+
+<style>
+  .hours__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0.75rem;
+    margin-inline: -0.75rem;
+    border-bottom: 1px solid var(--color-line);
+    border-radius: 10px;
+    font-size: 1.0625rem;
+  }
+
+  .hours__row:last-child {
+    border-bottom: 0;
+  }
+
+  .hours__row dd {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hours__row.is-today {
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+    font-weight: 600;
+    border-color: transparent;
+  }
+
+  .hours__row.is-today dt::after {
+    content: ' · hoje';
+    font-weight: 400;
+  }
+</style>
+
+<script>
+  // Destaca o dia atual no fuso de Brasília.
+  const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'America/Sao_Paulo' })
+    .format(new Date())
+    .slice(0, 2);
+  const today = days.find((d) => d === weekday);
+  if (today) document.querySelectorAll(`[data-day="${today}"]`).forEach((el) => el.classList.add('is-today'));
+</script>

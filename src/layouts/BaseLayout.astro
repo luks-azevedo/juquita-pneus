@@ -13,6 +13,7 @@ import WhatsAppButton from '../components/layout/WhatsAppButton.astro';
 import { site } from '../config/site';
 import { theme } from '../config/theme';
 import { themeToCss } from '../lib/theme';
+import { cleanPath } from '../lib/url';
 import { phoneUrl, formattedAddress, socialLinks, missingSiteFields } from '../lib/contact';
 
 interface Props {
@@ -36,7 +37,7 @@ const {
 
 const fullTitle = title ? site.seo.titleTemplate.replace('%s', title) : site.seo.defaultTitle;
 const domain = site.domain.replace(/\/+$/, '');
-const canonical = domain ? new URL(Astro.url.pathname, domain).href : null;
+const canonical = domain && !noindex ? new URL(cleanPath(Astro.url.pathname), domain).href : null;
 const ogImageUrl = domain ? new URL(ogImage, domain).href : ogImage;
 const sameFont = theme.fonts.heading.name === theme.fonts.body.name;
 
@@ -45,12 +46,13 @@ const address = site.address;
 const sameAs = socialLinks().map((s) => s.href);
 const schema = {
   '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
+  '@type': site.schemaType || 'LocalBusiness',
   name: site.name,
   description: site.description,
   ...(domain && { url: domain, image: ogImageUrl }),
   ...(site.contact.email && { email: site.contact.email }),
   ...(phoneUrl() && { telephone: phoneUrl()!.replace('tel:', '') }),
+  ...(!phoneUrl() && site.contact.whatsapp && { telephone: `+${site.contact.whatsapp.replace(/\D/g, '')}` }),
   ...(formattedAddress() && {
     address: {
       '@type': 'PostalAddress',
@@ -62,6 +64,19 @@ const schema = {
     },
   }),
   ...(sameAs.length && { sameAs }),
+  ...(site.areaServed?.length && { areaServed: site.areaServed }),
+  ...(site.geo && { geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng } }),
+  ...(site.address.mapsUrl && { hasMap: site.address.mapsUrl }),
+  ...(site.openingHours?.some((d) => d.hours) && {
+    openingHoursSpecification: site.openingHours
+      .filter((d) => d.hours)
+      .map((d) => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: `https://schema.org/${{ Mo: 'Monday', Tu: 'Tuesday', We: 'Wednesday', Th: 'Thursday', Fr: 'Friday', Sa: 'Saturday', Su: 'Sunday' }[d.day]}`,
+        opens: d.hours![0],
+        closes: d.hours![1],
+      })),
+  }),
 };
 
 const missing = import.meta.env.DEV ? missingSiteFields() : [];
@@ -91,8 +106,8 @@ const missing = import.meta.env.DEV ? missingSiteFields() : [];
     <meta name="twitter:card" content="summary_large_image" />
 
     <!-- Pré-carrega só o arquivo "latin" de cada família (o restante carrega sob demanda) -->
-    <Font cssVariable="--ff-body" preload={[{ subset: 'latin', style: 'normal' }]} />
-    {!sameFont && <Font cssVariable="--ff-heading" preload={[{ subset: 'latin', style: 'normal' }]} />}
+    <Font cssVariable="--ff-body" preload={[{ subset: 'latin' }]} />
+    {!sameFont && <Font cssVariable="--ff-heading" preload={[{ subset: 'latin' }]} />}
     <style is:inline set:html={themeToCss(theme)}></style>
 
     {!noindex && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}

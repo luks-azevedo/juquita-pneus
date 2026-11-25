@@ -4,9 +4,9 @@ import Logo from './Logo.astro';
 import MobileMenu from './MobileMenu.astro';
 import Button from '../ui/Button.astro';
 import { navigation } from '../../config/navigation';
-import { site } from '../../config/site';
+import { cleanPath } from '../../lib/url';
 
-const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const path = cleanPath(Astro.url.pathname);
 const isActive = (href: string) => {
   const target = href.split('#')[0].replace(/\/+$/, '') || '/';
   return target === path;
@@ -15,8 +15,9 @@ const isActive = (href: string) => {
 
 <header class="sticky top-0 z-40 border-b border-transparent bg-bg/95 transition-colors duration-300" data-header>
   <div class="container-page flex h-16 items-center justify-between gap-6 lg:h-20">
-    <a href="/" class="shrink-0" aria-label={`${site.name} — página inicial`}>
+    <a href="/" class="shrink-0">
       <Logo />
+      <span class="sr-only"> — página inicial</span>
     </a>
 
     <nav aria-label="Navegação principal" class="hidden lg:block">

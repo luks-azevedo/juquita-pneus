@@ -17,10 +17,11 @@ const hasContact = Boolean(wa || tel || mail || address || site.contact.hours);
 <footer class="border-t border-inverted-ink/15 bg-inverted text-inverted-ink">
   <div class="container-page grid gap-12 py-16 md:grid-cols-12 lg:py-20">
     <div class="md:col-span-5">
-      <a href="/" aria-label={`${site.name} — página inicial`} class="inline-block">
+      <a href="/" class="inline-block">
         <Logo inverted />
+        <span class="sr-only"> — página inicial</span>
       </a>
-      <p class="mt-5 max-w-sm text-inverted-ink/80">{site.description}</p>
+      <p class="mt-5 max-w-sm text-inverted-ink/90">{site.description}</p>
       {
         socials.length > 0 && (
           <ul class="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">
@@ -41,7 +42,7 @@ const hasContact = Boolean(wa || tel || mail || address || site.contact.hours);
     {
       navigation.footer.map((group) => (
         <nav aria-label={group.title}>
-          <p class="text-sm font-medium text-inverted-ink/70">{group.title}</p>
+          <p class="text-sm font-medium text-inverted-ink/90">{group.title}</p>
           <ul class="mt-4 space-y-2.5">
             {group.links.map((l) => (
               <li>
@@ -58,7 +59,7 @@ const hasContact = Boolean(wa || tel || mail || address || site.contact.hours);
     {
       hasContact && (
         <div>
-          <p class="text-sm font-medium text-inverted-ink/70">Contato</p>
+          <p class="text-sm font-medium text-inverted-ink/90">Contato</p>
           <ul class="mt-4 space-y-2.5">
             {wa && (
               <li>
@@ -81,8 +82,8 @@ const hasContact = Boolean(wa || tel || mail || address || site.contact.hours);
                 </a>
               </li>
             )}
-            {address && <li class="text-inverted-ink/80">{address}</li>}
-            {site.contact.hours && <li class="text-inverted-ink/80">{site.contact.hours}</li>}
+            {address && <li class="text-inverted-ink/90">{address}</li>}
+            {site.contact.hours && <li class="text-inverted-ink/90">{site.contact.hours}</li>}
           </ul>
         </div>
       )
@@ -90,7 +91,7 @@ const hasContact = Boolean(wa || tel || mail || address || site.contact.hours);
     </div>
   </div>
 
-  <div class="container-page flex flex-col gap-2 border-t border-inverted-ink/15 py-6 text-sm text-inverted-ink/75 sm:flex-row sm:justify-between">
+  <div class="container-page flex flex-col gap-2 border-t border-inverted-ink/15 py-6 text-sm text-inverted-ink/90 sm:flex-row sm:justify-between">
     <p>© {year} {site.name}. Todos os direitos reservados.</p>
     {legal && <p>{legal}</p>}
   </div>

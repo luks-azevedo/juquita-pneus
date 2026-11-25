@@ -19,6 +19,8 @@ export function themeToCss(t: Theme): string {
     '--heading-weight': t.typography.headingWeight,
     '--heading-tracking': t.typography.headingTracking,
     '--heading-leading': t.typography.headingLineHeight,
+    '--heading-transform': t.typography.headingTransform ?? 'none',
+    '--heading-style': t.typography.headingStyle ?? 'normal',
     '--base-size': t.typography.baseSize,
     '--r-control': t.radius.control,
     '--r-card': t.radius.card,

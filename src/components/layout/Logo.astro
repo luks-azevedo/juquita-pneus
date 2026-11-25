@@ -24,6 +24,13 @@ const src = inverted && logo.srcInverted ? logo.srcInverted : logo.src;
       class:list={['h-8 w-auto sm:h-9', className]}
       decoding="async"
     />
+  ) : logo.wordmark ? (
+    <span class:list={['inline-flex flex-col leading-none', className]}>
+      <span class="font-heading text-[1.375rem] tracking-[0.3em] sm:text-[1.5rem]">{logo.wordmark}</span>
+      {logo.tagline && (
+        <span class="mt-1.5 text-[0.625rem] font-medium tracking-[0.22em] uppercase opacity-75">{logo.tagline}</span>
+      )}
+    </span>
   ) : (
     <span class:list={['font-heading text-xl leading-none font-semibold tracking-[-0.02em] sm:text-[1.375rem]', className]}>
       {site.name}

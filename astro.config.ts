@@ -36,7 +36,8 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'ignore',
   build: {
-    format: 'directory',
+    // 'file' gera /cardapio.html → servido em /cardapio sem redirecionamento extra
+    format: 'file',
     inlineStylesheets: 'auto',
   },
   fonts: (sameFont

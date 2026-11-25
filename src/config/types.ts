@@ -16,6 +16,21 @@ export interface SiteLogo {
   height: number;
   /** Versão para fundos escuros (opcional). */
   srcInverted?: string;
+  /** Logotipo tipográfico (usado quando `src` está vazio). Ex.: 'CASTRO' */
+  wordmark?: string;
+  /** Linha complementar do logotipo tipográfico. Ex.: 'Advocacia Especializada' */
+  tagline?: string;
+}
+
+/** Dia da semana no padrão schema.org (Mo, Tu, We, Th, Fr, Sa, Su). */
+export type WeekDay = 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa' | 'Su';
+
+export interface OpeningHoursDay {
+  day: WeekDay;
+  /** Nome exibido. Ex.: 'Terça' */
+  label: string;
+  /** ['17:00', '00:00'] — ou `null` para fechado. Fechamento após meia-noite é aceito. */
+  hours: [string, string] | null;
 }
 
 export interface SiteConfig {
@@ -59,6 +74,14 @@ export interface SiteConfig {
     linkedin: string;
     youtube: string;
   };
+  /** Tipo schema.org do negócio. Ex.: 'LocalBusiness', 'BarOrPub', 'Restaurant', 'Dentist'. */
+  schemaType?: string;
+  /** Cidades/regiões atendidas (dados estruturados). */
+  areaServed?: string[];
+  /** Coordenadas (opcional, melhora o SEO local). */
+  geo?: { lat: number; lng: number };
+  /** Horário estruturado (opcional). Usado na seção de horários e nos dados estruturados. */
+  openingHours?: OpeningHoursDay[];
   seo: {
     /** `%s` é substituído pelo título da página. */
     titleTemplate: string;
@@ -118,6 +141,10 @@ export interface Theme {
     /** Ex.: '-0.02em' */
     headingTracking: string;
     headingLineHeight: number;
+    /** Caixa dos títulos (opcional). Use 'uppercase' para fontes de display condensadas. */
+    headingTransform?: 'none' | 'uppercase';
+    /** Estilo dos títulos (opcional). A fonte precisa incluir o estilo em `styles`. */
+    headingStyle?: 'normal' | 'italic';
     /** Tamanho base do texto. Ex.: '1rem' */
     baseSize: string;
   };

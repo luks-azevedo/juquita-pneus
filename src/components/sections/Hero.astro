@@ -4,6 +4,7 @@
  * - variant="split"    → texto + imagem lado a lado (home)
  * - variant="centered" → texto centralizado, imagem larga opcional abaixo
  * - variant="page"     → cabeçalho compacto para páginas internas
+ * - variant="cover"    → foto de fundo em tela cheia com degradê escuro
  */
 import { Image } from 'astro:assets';
 import Check from '@lucide/astro/icons/check';
@@ -14,7 +15,7 @@ import Badge from '../ui/Badge.astro';
 import type { ContentImage, CTA } from '../../types/content';
 
 interface Props {
-  variant?: 'split' | 'centered' | 'page';
+  variant?: 'split' | 'centered' | 'page' | 'cover';
   eyebrow?: string;
   title: string;
   description?: string;
@@ -25,6 +26,8 @@ interface Props {
   imageIllustrative?: boolean;
   /** Lista curta de pontos (ex.: "Atendimento online"). */
   highlights?: string[];
+  /** Linhas circulares finas atrás da imagem (variante split). */
+  decor?: boolean;
 }
 
 const {
@@ -37,23 +40,45 @@ const {
   image,
   imageIllustrative = false,
   highlights = [],
+  decor = false,
 } = Astro.props;
 
 const isSplit = variant === 'split' && image;
 const isCentered = variant === 'centered';
 const isPage = variant === 'page';
+const isCover = variant === 'cover' && image;
 ---
 
 <section
   class:list={[
-    'relative',
-    isPage ? 'border-b border-line pt-14 pb-12 lg:pt-20 lg:pb-16' : 'pt-12 pb-16 lg:pt-20 lg:pb-24',
+    'relative overflow-x-clip',
+    isCover
+      ? 'hero-cover flex min-h-[min(88svh,760px)] items-end pt-32 pb-16 lg:items-center lg:pb-24'
+      : isPage
+        ? 'border-b border-line pt-14 pb-12 lg:pt-20 lg:pb-16'
+        : 'pt-12 pb-16 lg:pt-20 lg:pb-24',
   ]}
   aria-labelledby="page-title"
 >
-  <Container>
+  {
+    isCover && image && (
+      <>
+        <Image
+          src={image.src}
+          alt={image.alt}
+          widths={[640, 1024, 1600, 2000]}
+          sizes="100vw"
+          loading="eager"
+          fetchpriority="high"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div class="hero-cover__shade absolute inset-0" aria-hidden="true" />
+      </>
+    )
+  }
+  <Container class={isCover ? 'relative' : undefined}>
     <div class:list={[isSplit && 'grid items-center gap-12 lg:grid-cols-12 lg:gap-16']}>
-      <div class:list={[isSplit && 'lg:col-span-7', isCentered && 'mx-auto max-w-3xl text-center', isPage && 'max-w-3xl']}>
+      <div class:list={[isSplit && 'lg:col-span-7', isCentered && 'mx-auto max-w-3xl text-center', (isPage || isCover) && 'max-w-3xl']}>
         {eyebrow && <p class="mb-5 text-sm font-medium tracking-[0.08em] text-accent uppercase">{eyebrow}</p>}
         <h1 id="page-title" class:list={[isPage ? 'text-h2 sm:text-[clamp(2.25rem,1.6rem+2.4vw,3.5rem)]' : 'text-display']}>
           {title}
@@ -94,6 +119,12 @@ const isPage = variant === 'page';
       {
         isSplit && image && (
           <figure class="relative lg:col-span-5">
+            {decor && (
+              <svg class="pointer-events-none absolute -right-16 -bottom-16 hidden w-[120%] text-primary sm:block" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+                <circle cx="200" cy="200" r="150" stroke="currentColor" stroke-opacity=".22" />
+                <circle cx="200" cy="200" r="190" stroke="currentColor" stroke-opacity=".14" />
+              </svg>
+            )}
             <Image
               src={image.src}
               alt={image.alt}
@@ -101,7 +132,7 @@ const isPage = variant === 'page';
               sizes="(min-width: 1024px) 40vw, 100vw"
               loading="eager"
               fetchpriority="high"
-              class="aspect-[4/5] w-full rounded-card object-cover"
+              class="relative aspect-[4/5] w-full rounded-card object-cover"
             />
             {imageIllustrative && <Badge tone="neutral" class="absolute top-4 left-4">Imagem ilustrativa</Badge>}
           </figure>
@@ -126,3 +157,12 @@ const isPage = variant === 'page';
     }
   </Container>
 </section>
+
+<style>
+  /* Degradê para garantir contraste do texto sobre a foto (variante cover) */
+  .hero-cover__shade {
+    background:
+      linear-gradient(to top, var(--color-bg) 0%, color-mix(in srgb, var(--color-bg) 70%, transparent) 45%, color-mix(in srgb, var(--color-bg) 35%, transparent) 100%),
+      linear-gradient(to right, color-mix(in srgb, var(--color-bg) 85%, transparent) 0%, transparent 75%);
+  }
+</style>

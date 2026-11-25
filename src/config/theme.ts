@@ -100,7 +100,43 @@ const moderno: Theme = {
   layout: { containerWidth: '1280px', sectionSpacing: ['4.5rem', '8rem'] },
 };
 
-export const themes = { editorial, clinica, moderno } as const;
+/**
+ * Juquita Pneus — escuro e robusto (referência: hightorque.com.br), com o verde-petróleo
+ * da marca. O verde do logotipo (#19856D) foi clareado para #20A884 para ter contraste no fundo escuro.
+ * Contraste: texto 17:1, muted 7.9:1, botão (texto escuro sobre verde) 6.4:1.
+ */
+const juquita: Theme = {
+  name: 'juquita',
+  colors: {
+    primary: '#20A884',
+    primaryContrast: '#0B0E0D',
+    secondary: '#161A1C',
+    accent: '#2CC39B',
+    background: '#0F1214',
+    surface: '#1A1F22',
+    text: '#F2F5F4',
+    muted: '#A7B0AD',
+    border: '#2B3236',
+    inverted: '#20A884',
+    invertedText: '#0B0E0D',
+  },
+  fonts: {
+    heading: { name: 'Barlow Condensed', fallback: 'sans-serif', weights: [700], styles: ['italic'] },
+    body: { name: 'Barlow', fallback: 'sans-serif', weights: [400, 600] },
+  },
+  typography: {
+    headingWeight: 700,
+    headingTracking: '0.005em',
+    headingLineHeight: 1,
+    headingTransform: 'uppercase',
+    headingStyle: 'italic',
+    baseSize: '1.0625rem',
+  },
+  radius: { control: '999px', card: '10px' },
+  layout: { containerWidth: '1240px', sectionSpacing: ['4.5rem', '7rem'] },
+};
 
-/** Tema ativo. Troque para `themes.clinica`, `themes.moderno` ou um preset próprio. */
-export const theme: Theme = themes.editorial;
+export const themes = { editorial, clinica, moderno, juquita } as const;
+
+/** Tema ativo. */
+export const theme: Theme = themes.juquita;

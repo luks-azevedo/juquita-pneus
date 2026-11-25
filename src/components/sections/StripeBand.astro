@@ -1,0 +1,31 @@
+---
+/**
+ * Faixa de destaque curta (ex.: "Desde 1957 · Pneus · Freios...") com
+ * bandeira quadriculada. Usa a cor primária do tema.
+ */
+import Container from '../ui/Container.astro';
+
+interface Props {
+  lead: string;
+  items: string[];
+}
+const { lead, items } = Astro.props;
+---
+
+<section class="stripe bg-primary text-primary-contrast" aria-label={lead}>
+  <Container class="flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
+    <p class="font-heading text-3xl uppercase italic sm:text-4xl">{lead}</p>
+    <ul class="flex flex-wrap items-center gap-x-6 gap-y-2 font-semibold uppercase">
+      {items.map((i) => <li>{i}</li>)}
+    </ul>
+    <svg class="hidden h-10 w-16 shrink-0 lg:block" viewBox="0 0 8 5" aria-hidden="true">
+      {
+        Array.from({ length: 40 }).map((_, k) => {
+          const x = k % 8;
+          const y = Math.floor(k / 8);
+          return (x + y) % 2 === 0 ? <rect x={x} y={y} width="1" height="1" fill="currentColor" /> : null;
+        })
+      }
+    </svg>
+  </Container>
+</section>

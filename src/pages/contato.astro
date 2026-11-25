@@ -1,26 +1,31 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/sections/Hero.astro';
-import ContactSection from '../components/sections/ContactSection.astro';
+import VisitSection from '../components/sections/VisitSection.astro';
 import FAQSection from '../components/sections/FAQSection.astro';
-import { faq } from '../data/demo';
+import { faq } from '../data/juquita';
+import { whatsappMessages } from '../config/site';
 ---
 
 <BaseLayout
-  title="Contato"
-  description="Fale com a Viana Consultoria pelo formulário ou pelos canais de atendimento."
+  title="Contato e agendamento"
+  description="Agende pelo WhatsApp (31) 99510-1570. R. Alfredo Elías Mafuz, 1000 – Santa Matilde, Conselheiro Lafaiete. Segunda a sexta, 7h45 às 18h."
 >
   <Hero
     variant="page"
     eyebrow="Contato"
-    title="Vamos conversar."
-    description="Conte um pouco sobre a sua empresa. Respondemos com os próximos passos."
+    title="Agende o serviço do seu carro"
+    description="O agendamento é feito pelo WhatsApp. Atendimento de segunda a sexta, das 7h45 às 18h."
   />
 
-  <ContactSection
-    title="Canais de atendimento"
-    description="Prefere conversar agora? Use um dos canais abaixo."
+  <VisitSection
+    id="agendar"
+    eyebrow="Agendamento"
+    title="Fale com a Juquita"
+    description="Conte o modelo do carro e o serviço que você precisa."
+    whatsappMessage={whatsappMessages.agendar}
+    whatsappLabel="Agendar pelo WhatsApp"
   />
 
-  <FAQSection tone="muted" eyebrow="Antes de enviar" title="Dúvidas comuns" items={faq.slice(0, 3)} />
+  <FAQSection tone="muted" eyebrow="Dúvidas" title="Antes de vir" items={faq} />
 </BaseLayout>
