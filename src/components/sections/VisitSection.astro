@@ -5,10 +5,10 @@
  */
 import MapPin from '@lucide/astro/icons/map-pin';
 import MessageCircle from '@lucide/astro/icons/message-circle';
-import Camera from '@lucide/astro/icons/camera';
 import Section, { type SectionTone } from '../ui/Section.astro';
 import SectionHeading from '../ui/SectionHeading.astro';
 import Button from '../ui/Button.astro';
+import InstagramIcon from '../ui/InstagramIcon.astro';
 import { site } from '../../config/site';
 import { whatsappUrl, formattedAddress, formatPhone } from '../../lib/contact';
 
@@ -21,6 +21,8 @@ interface Props {
   /** Mensagem do botão de WhatsApp. */
   whatsappMessage?: string;
   whatsappLabel?: string;
+  /** Texto curto ao lado do @ do Instagram (opcional). Ex.: 'agenda de shows e novidades' */
+  instagramNote?: string;
 }
 
 const {
@@ -31,6 +33,7 @@ const {
   description,
   whatsappMessage,
   whatsappLabel = 'Reservar pelo WhatsApp',
+  instagramNote,
 } = Astro.props;
 
 const headingId = `${id}-title`;
@@ -85,12 +88,12 @@ const igHandle = instagram ? `@${instagram.replace(/\/+$/, '').split('/').pop()}
             {wa && <li>WhatsApp: {formatPhone(site.contact.whatsapp)}</li>}
             {instagram && (
               <li class="flex items-center gap-2">
-                <Camera size={18} aria-hidden="true" />
+                <InstagramIcon size={18} class="shrink-0 text-ink" />
                 <a href={instagram} target="_blank" rel="noopener noreferrer" class="text-ink underline underline-offset-4">
                   {igHandle}
                   <span class="sr-only"> no Instagram (abre em nova aba)</span>
                 </a>
-                <span>· agenda de shows e novidades</span>
+                {instagramNote && <span>· {instagramNote}</span>}
               </li>
             )}
           </ul>
