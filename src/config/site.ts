@@ -12,7 +12,7 @@ export const site: SiteConfig = {
   description:
     'Centro automotivo em Conselheiro Lafaiete desde 1957: pneus, freios, suspensão e mecânica. Agende pelo WhatsApp.',
   segment: 'Centro automotivo',
-  domain: '',
+  domain: 'https://juquitapneus.apresenta.workers.dev',
   logo: {
     src: '/images/logo-juquita.png',
     srcInverted: '/images/logo-juquita.png',
